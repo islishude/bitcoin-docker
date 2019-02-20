@@ -1,3 +1,1 @@
-# bitcoin-docker
-
-work in progressing
+Bitcoin Docker
