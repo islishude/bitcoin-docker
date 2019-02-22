@@ -8,4 +8,4 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 EXPOSE 8332 8833 18332 18333
 VOLUME [ "/root/.bitcoin" ]
-ENTRYPOINT [ "bitcoind" ]
+ENTRYPOINT [ "/usr/local/bin/bitcoind" ]
