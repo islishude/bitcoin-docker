@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -qq --no-install-recommends -y dirmngr ca-
     --exclude=README.md  --exclude=*share* && \
     apt-get --purge remove dirmngr curl gpg -y && \
     rm *.tar.gz *.asc && rm -rf /root/.gnupg && rm -rf /var/lib/apt/lists/*
-EXPOSE 8332 8833 18332 18333
+EXPOSE 8332 8333 18332 18333
 VOLUME [ "/home/bitcoin" ]
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD [ "bitcoin-cli", "getbestblockhash" ]
 USER bitcoin
