@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -qq --no-install-recommends -y dirmngr ca-
     sha256sum -c --ignore-missing SHA256SUMS.asc && \
     tar zxf bitcoin-${VERSION}-${ARCH}-${OS}.tar.gz -C /usr/local --strip-components=1 --no-same-owner \
     --exclude=*-qt --exclude=*test_bitcoin --exclude=*-wallet --exclude=*-tx \
-    --exclude=README.md  --exclude=*share* --exclude=*-cli && \
+    --exclude=README.md  --exclude=*share* && \
     apt-get --purge remove dirmngr ca-certificates curl gpg gpg-agent -y && \
     apt-get autoremove -y --purge && apt-get clean -y && \
     rm *.tar.gz *.asc && rm -rf /root/.gnupg /var/lib/apt/lists/* /tmp/* /var/tmp/*
