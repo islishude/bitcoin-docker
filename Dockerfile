@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 
-ARG VERSION=0.19.1
+ARG VERSION=0.20.1
 ARG ARCH=x86_64
 ARG OS=linux-gnu
 
