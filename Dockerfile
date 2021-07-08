@@ -1,5 +1,5 @@
 FROM debian:buster-slim as downloader
-ARG VERSION=0.20.1
+ARG VERSION=0.21.1
 ARG ARCH=x86_64
 ARG OS=linux-gnu
 RUN apt-get update && apt-get install -qq --no-install-recommends -y dirmngr ca-certificates curl gpg gpg-agent
