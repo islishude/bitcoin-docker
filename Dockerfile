@@ -17,11 +17,7 @@ RUN mkdir -p amd64 && tar zxf bitcoin-$DISTVER-x86_64-linux-gnu.tar.gz -C amd64 
 FROM --platform=$TARGETPLATFORM debian:bookworm-slim
 ARG TARGETARCH
 RUN groupadd -g 1000 bitcoin && useradd -m -g 1000 -u 1000 bitcoin
-COPY --from=downloader /download/${TARGETARCH}/bin/* /usr/local/bin/
-COPY --from=downloader /download/${TARGETARCH}/lib/* /usr/local/lib/
-COPY --from=downloader /download/${TARGETARCH}/include/* /usr/local/include/
-COPY --from=downloader /download/${TARGETARCH}/share/man/* /usr/local/share/man/
-COPY --from=downloader /download/${TARGETARCH}/share/rpcauth /usr/local/share/
-COPY --from=downloader /download/${TARGETARCH}/bitcoin.conf /download/${TARGETARCH}/README.md /
+COPY --from=downloader /download/${TARGETARCH}/bin/bitcoind /download/${TARGETARCH}/bin/bitcoin-cli /usr/local/bin/
+COPY --from=downloader /download/${TARGETARCH}/bitcoin.conf /
 EXPOSE 8332 8333
 ENTRYPOINT [ "bitcoind" ]
