@@ -1,16 +1,21 @@
 Bitcoin Docker
 
 ```shell
-docker pull ghcr.io/islishude/bitcoin
-mkdir -p -m 0777 chaindata/bitcoin
-cat > chaindata/bitcoin/bitcoin.conf <<EOF
+mkdir -p -m 0777 chaindata
+
+cat > chaindata/bitcoin.conf <<EOF
+chain=regtest
+txindex=1
+discover=0
+
+[regtest]
 server=1
+rpcbind=0.0.0.0
+rpcallowip=0.0.0.0/0
+rpcport=8332
 rpcuser=test
 rpcpassword=test
-
-rpcallowip=0.0.0.0/0
-rpcbindip=0.0.0.0:8332
 EOF
 
-docker run -v ${PWD}/bitcoin:/bitcoin -p 8332:8332 ghcr.io/islishude/bitcoin -datadir=/bitcoin
+docker run -v ./bitcoin:/root/.bitcoin -p 8332:8332 ghcr.io/islishude/bitcoin
 ```
