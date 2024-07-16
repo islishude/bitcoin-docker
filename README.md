@@ -17,5 +17,5 @@ rpcuser=test
 rpcpassword=test
 EOF
 
-docker run -v ./bitcoin:/root/.bitcoin -p 8332:8332 ghcr.io/islishude/bitcoin
+docker run -v ./chaindata:/root/.bitcoin -p 8332:8332 ghcr.io/islishude/bitcoin
 ```
