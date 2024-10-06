@@ -1,4 +1,4 @@
-Bitcoin Core version v27.1.0
+Bitcoin Core version v28.0.0
 
 Usage:  bitcoind [options]                     Start Bitcoin Core
 
@@ -19,11 +19,13 @@ Options:
        If this block is in the chain assume that it and its ancestors are valid
        and potentially skip their script verification (0 to verify all,
        default:
-       000000000000000000026811d149d4d261995ec5b3f64f439a0a10e1a464af9a,
-       testnet:
-       000000000001323071f38f21ea5aae529ece491eadaccce506a59bcc2d968917,
+       000000000000000000011c5890365bdbe5d25b97ce0057589acaef4f1a57263f,
+       testnet3:
+       000000000000000465b1a66c9f386308e8c75acef9201f3f577811da09fc90ad,
+       testnet4:
+       000000005be348057db991fa5d89fe7c4695b667cfb311391a8db374b6f681fd,
        signet:
-       0000000870f15246ba23c16e370a7ffb1fc8a3dcf8cb4492882ed4b0e3d4cd26)
+       0000014aad1d58dddcb964dd749b073374c6306e716b22f573a2efe68d414539)
 
   -blockfilterindex=<type>
        Maintain an index of compact filters by block (default: 0, values:
@@ -43,10 +45,15 @@ Options:
        <datadir>)
 
   -blocksonly
-       Whether to reject transactions from network peers. Automatic broadcast
-       and rebroadcast of any transactions from inbound peers is
-       disabled, unless the peer has the 'forcerelay' permission. RPC
-       transactions are not affected. (default: 0)
+       Whether to reject transactions from network peers. Disables automatic
+       broadcast and rebroadcast of transactions, unless the source peer
+       has the 'forcerelay' permission. RPC transactions are not
+       affected. (default: 0)
+
+  -blocksxor
+       Whether an XOR-key applies to blocksdir *.dat files. The created XOR-key
+       will be zeros for an existing blocksdir or when `-blocksxor=0` is
+       set, and random for a freshly initialized blocksdir. (default: 1)
 
   -coinstatsindex
        Maintain coinstats index used by the gettxoutsetinfo RPC (default: 0)
@@ -178,8 +185,9 @@ Connection options:
        Bind to given address and always listen on it (default: 0.0.0.0). Use
        [host]:port notation for IPv6. Append =onion to tag any incoming
        connections to that address and port as incoming Tor connections
-       (default: 127.0.0.1:8334=onion, testnet: 127.0.0.1:18334=onion,
-       signet: 127.0.0.1:38334=onion, regtest: 127.0.0.1:18445=onion)
+       (default: 127.0.0.1:8334=onion, testnet3: 127.0.0.1:18334=onion,
+       testnet4: 127.0.0.1:48334=onion, signet: 127.0.0.1:38334=onion,
+       regtest: 127.0.0.1:18445=onion)
 
   -cjdnsreachable
        If set, then this host is configured for CJDNS (connecting to fc00::/8
@@ -241,11 +249,6 @@ Connection options:
        Maximum per-connection memory usage for the send buffer, <n>*1000 bytes
        (default: 1000)
 
-  -maxtimeadjustment
-       Maximum allowed median peer time offset adjustment. Local perspective of
-       time may be influenced by outbound peers forward or backward by
-       this amount (default: 4200 seconds).
-
   -maxuploadtarget=<n>
        Tries to keep outbound traffic under the given target per 24h. Limit
        does not apply to peers with 'download' permission or blocks
@@ -260,9 +263,10 @@ Connection options:
        Enable all P2P network activity (default: 1). Can be changed by the
        setnetworkactive RPC command
 
-  -onion=<ip:port>
+  -onion=<ip:port|path>
        Use separate SOCKS5 proxy to reach peers via Tor onion services, set
-       -noonion to disable (default: -proxy)
+       -noonion to disable (default: -proxy). May be a local file path
+       prefixed with 'unix:'.
 
   -onlynet=<net>
        Make automatic outbound connections only to network <net> (ipv4, ipv6,
@@ -278,14 +282,14 @@ Connection options:
        0)
 
   -port=<port>
-       Listen for connections on <port>. Nodes not using the default ports
-       (default: 8333, testnet: 18333, signet: 38333, regtest: 18444)
-       are unlikely to get incoming connections. Not relevant for I2P
-       (see doc/i2p.md).
+       Listen for connections on <port> (default: 8333, testnet3: 18333,
+       testnet4: 48333, signet: 38333, regtest: 18444). Not relevant for
+       I2P (see doc/i2p.md).
 
-  -proxy=<ip:port>
+  -proxy=<ip:port|path>
        Connect through SOCKS5 proxy, set -noproxy to disable (default:
-       disabled)
+       disabled). May be a local file path prefixed with 'unix:' if the
+       proxy supports it.
 
   -proxyrandomize
        Randomize credentials for every proxy connection. This enables Tor
@@ -294,7 +298,7 @@ Connection options:
   -seednode=<ip>
        Connect to a node to retrieve peer addresses, and disconnect. This
        option can be specified multiple times to connect to multiple
-       nodes.
+       nodes. During startup, seednodes will be tried before dnsseeds.
 
   -timeout=<n>
        Specify socket connection timeout in milliseconds. If an initial attempt
@@ -310,8 +314,7 @@ Connection options:
        Tor control port password (default: empty)
 
   -upnp
-       Use UPnP to map the listening port (default: 1 when listening and no
-       -proxy)
+       Use UPnP to map the listening port (default: 0)
 
   -v2transport
        Support v2 transport (default: 1)
@@ -332,10 +335,11 @@ Connection options:
        download,noban,mempool,relay). Can be specified multiple times.
 
   -whitelist=<[permissions@]IP address or network>
-       Add permission flags to the peers connecting from the given IP address
-       (e.g. 1.2.3.4) or CIDR-notated network (e.g. 1.2.3.0/24). Uses
-       the same permissions as -whitebind. Can be specified multiple
-       times.
+       Add permission flags to the peers using the given IP address (e.g.
+       1.2.3.4) or CIDR-notated network (e.g. 1.2.3.0/24). Uses the same
+       permissions as -whitebind. Additional flags "in" and "out"
+       control whether permissions apply to incoming connections and/or
+       manual (default: incoming only). Can be specified multiple times.
 
 Wallet options:
 
@@ -472,19 +476,22 @@ Debugging/Testing options:
 
   -debug=<category>
        Output debug and trace logging (default: -nodebug, supplying <category>
-       is optional). If <category> is not supplied or if <category> = 1,
-       output all debug and trace logging. <category> can be: addrman,
-       bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p,
-       ipc, leveldb, libevent, mempool, mempoolrej, net, proxy, prune,
-       qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages,
-       txreconciliation, util, validation, walletdb, zmq. This option
-       can be specified multiple times to output multiple categories.
+       is optional). If <category> is not supplied or if <category> is 1
+       or "all", output all debug logging. If <category> is 0 or "none",
+       any other categories are ignored. Other valid values for
+       <category> are: addrman, bench, blockstorage, cmpctblock, coindb,
+       estimatefee, http, i2p, ipc, leveldb, libevent, mempool,
+       mempoolrej, net, proxy, prune, qt, rand, reindex, rpc, scan,
+       selectcoins, tor, txpackages, txreconciliation, validation,
+       walletdb, zmq. This option can be specified multiple times to
+       output multiple categories.
 
   -debugexclude=<category>
        Exclude debug and trace logging for a category. Can be used in
        conjunction with -debug=1 to output debug and trace logging for
        all categories except the specified category. This option can be
-       specified multiple times to exclude multiple categories.
+       specified multiple times to exclude multiple categories. This
+       takes priority over "-debug"
 
   -help-debug
        Print help message with debugging options and exit
@@ -500,8 +507,7 @@ Debugging/Testing options:
        (source file, line number and function name) (default: 0)
 
   -logthreadnames
-       Prepend debug output with name of the originating thread (only available
-       on platforms supporting thread_local) (default: 0)
+       Prepend debug output with name of the originating thread (default: 0)
 
   -logtimestamps
        Prepend debug output with timestamp (default: 1)
@@ -524,7 +530,7 @@ Chain selection options:
 
   -chain=<chain>
        Use the chain <chain> (default: main). Allowed values: main, test,
-       signet, regtest
+       testnet4, signet, regtest
 
   -signet
        Use the signet chain. Equivalent to -chain=signet. Note that the network
@@ -542,7 +548,12 @@ Chain selection options:
        network seed node(s))
 
   -testnet
-       Use the test chain. Equivalent to -chain=test.
+       Use the testnet3 chain. Equivalent to -chain=test. Support for testnet3
+       is deprecated and will be removed in an upcoming release.
+       Consider moving to testnet4 now by using -testnet4.
+
+  -testnet4
+       Use the testnet4 chain. Equivalent to -chain=testnet4.
 
 Node relay options:
 
@@ -558,25 +569,25 @@ Node relay options:
        this size or less (default: 83)
 
   -mempoolfullrbf
-       Accept transaction replace-by-fee without requiring replaceability
-       signaling (default: 0)
+       (DEPRECATED) Accept transaction replace-by-fee without requiring
+       replaceability signaling (default: 1)
 
   -minrelaytxfee=<amt>
        Fees (in BTC/kvB) smaller than this are considered zero fee for
        relaying, mining and transaction creation (default: 0.00001)
 
   -permitbaremultisig
-       Relay non-P2SH multisig (default: 1)
+       Relay transactions creating non-P2SH multisig outputs (default: 1)
 
   -whitelistforcerelay
-       Add 'forcerelay' permission to whitelisted inbound peers with default
+       Add 'forcerelay' permission to whitelisted peers with default
        permissions. This will relay transactions even if the
        transactions were already in the mempool. (default: 0)
 
   -whitelistrelay
-       Add 'relay' permission to whitelisted inbound peers with default
-       permissions. This will accept relayed transactions even when not
-       relaying transactions (default: 1)
+       Add 'relay' permission to whitelisted peers with default permissions.
+       This will accept relayed transactions even when not relaying
+       transactions (default: 1)
 
 Block creation options:
 
@@ -619,12 +630,16 @@ RPC server options:
        Location of the auth cookie. Relative paths will be prefixed by a
        net-specific datadir location. (default: data dir)
 
+  -rpccookieperms=<readable-by>
+       Set permissions on the RPC auth cookie file so that it is readable by
+       [owner|group|all] (default: owner [via umask 0077])
+
   -rpcpassword=<pw>
        Password for JSON-RPC connections
 
   -rpcport=<port>
-       Listen for JSON-RPC connections on <port> (default: 8332, testnet:
-       18332, signet: 38332, regtest: 18443)
+       Listen for JSON-RPC connections on <port> (default: 8332, testnet3:
+       18332, testnet4: 48332, signet: 38332, regtest: 18443)
 
   -rpcthreads=<n>
        Set the number of threads to service RPC calls (default: 4)
@@ -649,3 +664,4 @@ RPC server options:
 
   -server
        Accept command line and JSON-RPC commands
+
