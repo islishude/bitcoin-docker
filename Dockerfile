@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM --platform=$BUILDPLATFORM debian:bookworm AS downloader
-ARG DISTVER=28.0
+ARG DISTVER=28.1
 RUN apt-get update && apt-get install -qq --no-install-recommends -y dirmngr ca-certificates curl gpg gpg-agent git
 WORKDIR /download
 RUN curl -fsSLO --proto '=https' --tlsv1.2 "https://bitcoincore.org/bin/bitcoin-core-$DISTVER/bitcoin-$DISTVER-x86_64-linux-gnu.tar.gz"
