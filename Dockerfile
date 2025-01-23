@@ -14,10 +14,16 @@ RUN gpg --verify SHA256SUMS.asc
 RUN mkdir -p amd64 && tar zxf bitcoin-$DISTVER-x86_64-linux-gnu.tar.gz -C amd64 --strip-components=1 --no-same-owner && \
     mkdir -p arm64 && tar zxf bitcoin-$DISTVER-aarch64-linux-gnu.tar.gz -C arm64 --strip-components=1 --no-same-owner
 
-FROM --platform=$TARGETPLATFORM debian:bookworm-slim
+FROM --platform=$TARGETPLATFORM debian:bookworm-slim AS debug
 ARG TARGETARCH
 RUN groupadd -g 1000 bitcoin && useradd -m -g 1000 -u 1000 bitcoin
 COPY --from=downloader /download/${TARGETARCH}/bin/bitcoind /download/${TARGETARCH}/bin/bitcoin-cli /usr/local/bin/
 COPY --from=downloader /download/${TARGETARCH}/bitcoin.conf /
+EXPOSE 8332 8333
+ENTRYPOINT [ "bitcoind" ]
+
+FROM --platform=$TARGETPLATFORM gcr.io/distroless/cc-debian12:latest AS distroless
+ARG TARGETARCH
+COPY --from=downloader /download/${TARGETARCH}/bin/bitcoind /usr/local/bin/
 EXPOSE 8332 8333
 ENTRYPOINT [ "bitcoind" ]

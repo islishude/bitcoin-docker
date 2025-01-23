@@ -43,15 +43,39 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         id: docker-build
-        timeout-minutes: 10
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          # Always use the base debian images
+          # Always use the latest base debian images
           pull: true
           tags: ${{ steps.docker-meta.outputs.tags }}
           labels: ${{ steps.docker-meta.outputs.labels }}
           annotations: ${{ steps.docker-meta.outputs.annotations }}
           provenance: false
+          sbom: false
+          target: debug
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Docker meta for distroless
+        id: docker-distroless-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/islishude/bitcoin
+          # add suffix to the image name
+          flavor: "prefix=distroless,onlatest=true"
+
+      - name: Build and push for distroless
+        uses: docker/build-push-action@v6
+        id: docker-distroless-build
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          pull: true
+          tags: ${{ steps.docker-distroless-meta.outputs.tags }}
+          labels: ${{ steps.docker-distroless-meta.outputs.labels }}
+          annotations: ${{ steps.docker-distroless-meta.outputs.annotations }}
+          provenance: false
+          target: distroless
           sbom: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
