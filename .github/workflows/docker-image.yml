@@ -63,7 +63,7 @@ jobs:
         with:
           images: ghcr.io/islishude/bitcoin
           # add suffix to the image name
-          flavor: "prefix=distroless-,onlatest=true"
+          flavor: "suffix=-distroless,onlatest=true"
 
       - name: Build and push for distroless
         uses: docker/build-push-action@v6
