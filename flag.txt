@@ -1,11 +1,16 @@
-Bitcoin Core version v28.1.0
+Bitcoin Core daemon version v29.1.0
 
-Usage:  bitcoind [options]                     Start Bitcoin Core
+The Bitcoin Core daemon (bitcoind) is a headless program that connects to the Bitcoin network to validate and relay transactions and blocks, as well as relaying addresses.
+
+It provides the backbone of the Bitcoin network and its RPC, REST and ZMQ services can provide various transaction, block and address-related services.
+
+There is an optional wallet component which provides transaction services.
+
+It can be used in a headless environment or as part of a server setup.
+
+Usage: bitcoind [options]
 
 Options:
-
-  -?
-       Print this help message and exit
 
   -alertnotify=<cmd>
        Execute command when an alert is raised (%s in cmd is replaced by
@@ -19,13 +24,13 @@ Options:
        If this block is in the chain assume that it and its ancestors are valid
        and potentially skip their script verification (0 to verify all,
        default:
-       000000000000000000011c5890365bdbe5d25b97ce0057589acaef4f1a57263f,
+       00000000000000000001b658dd1120e82e66d2790811f89ede9742ada3ed6d77,
        testnet3:
-       000000000000000465b1a66c9f386308e8c75acef9201f3f577811da09fc90ad,
+       00000000000003fc7967410ba2d0a8a8d50daedc318d43e8baf1a9782c236a57,
        testnet4:
-       000000005be348057db991fa5d89fe7c4695b667cfb311391a8db374b6f681fd,
+       0000000000003ed4f08dbdf6f7d6b271a6bcffce25675cb40aa9fa43179a89f3,
        signet:
-       0000014aad1d58dddcb964dd749b073374c6306e716b22f573a2efe68d414539)
+       000000895a110f46e59eb82bbc5bfb67fa314656009c295509c21b4999f5180a)
 
   -blockfilterindex=<type>
        Maintain an index of compact filters by block (default: 0, values:
@@ -74,14 +79,17 @@ Options:
        Specify data directory
 
   -dbcache=<n>
-       Maximum database cache size <n> MiB (4 to 16384, default: 450). In
-       addition, unused mempool memory is shared for this cache (see
-       -maxmempool).
+       Maximum database cache size <n> MiB (minimum 4, default: 450). Make sure
+       you have enough RAM. In addition, unused memory allocated to the
+       mempool is shared with this cache (see -maxmempool).
 
   -debuglogfile=<file>
        Specify location of debug log file (default: debug.log). Relative paths
        will be prefixed by a net-specific datadir location. Pass
        -nodebuglogfile to disable writing the log to a file.
+
+  -help
+       Print this help message and exit (also -h or -?)
 
   -includeconf=<file>
        Specify additional configuration file, relative to the -datadir path
@@ -257,7 +265,7 @@ Connection options:
        base while uppercase is 1024 base
 
   -natpmp
-       Use NAT-PMP to map the listening port (default: 0)
+       Use PCP or NAT-PMP to map the listening port (default: 0)
 
   -networkactive
        Enable all P2P network activity (default: 1). Can be changed by the
@@ -313,9 +321,6 @@ Connection options:
 
   -torpassword=<pass>
        Tor control port password (default: empty)
-
-  -upnp
-       Use UPnP to map the listening port (default: 0)
 
   -v2transport
        Support v2 transport (default: 1)
@@ -569,13 +574,9 @@ Node relay options:
        Relay and mine transactions whose data-carrying raw scriptPubKey is of
        this size or less (default: 83)
 
-  -mempoolfullrbf
-       (DEPRECATED) Accept transaction replace-by-fee without requiring
-       replaceability signaling (default: 1)
-
   -minrelaytxfee=<amt>
        Fees (in BTC/kvB) smaller than this are considered zero fee for
-       relaying, mining and transaction creation (default: 0.00001)
+       relaying, mining and transaction creation (default: 0.000001)
 
   -permitbaremultisig
        Relay transactions creating non-P2SH multisig outputs (default: 1)
@@ -593,11 +594,16 @@ Node relay options:
 Block creation options:
 
   -blockmaxweight=<n>
-       Set maximum BIP141 block weight (default: 3996000)
+       Set maximum BIP141 block weight (default: 4000000)
 
   -blockmintxfee=<amt>
        Set lowest fee rate (in BTC/kvB) for transactions to be included in
-       block creation. (default: 0.00001)
+       block creation. (default: 0.00000001)
+
+  -blockreservedweight=<n>
+       Reserve space for the fixed-size block header plus the largest coinbase
+       transaction the mining software may add to the block. (default:
+       8000).
 
 RPC server options:
 
@@ -643,7 +649,7 @@ RPC server options:
        18332, testnet4: 48332, signet: 38332, regtest: 18443)
 
   -rpcthreads=<n>
-       Set the number of threads to service RPC calls (default: 4)
+       Set the number of threads to service RPC calls (default: 16)
 
   -rpcuser=<user>
        Username for JSON-RPC connections
