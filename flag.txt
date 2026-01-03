@@ -1,4 +1,4 @@
-Bitcoin Core daemon version v30.0.0
+Bitcoin Core daemon version v30.1.0 bitcoind
 
 The Bitcoin Core daemon (bitcoind) is a headless program that connects to the Bitcoin network to validate and relay transactions and blocks, as well as relaying addresses.
 
