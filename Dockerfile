@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM --platform=$BUILDPLATFORM debian:stable AS downloader
-ARG DISTVER=30.1
+ARG DISTVER=31.0
 RUN apt-get update && apt-get install -qq --no-install-recommends -y dirmngr ca-certificates curl gpg gpg-agent git
 WORKDIR /download
 RUN curl -fsSLO --proto '=https' --tlsv1.2 "https://bitcoincore.org/bin/bitcoin-core-$DISTVER/bitcoin-$DISTVER-x86_64-linux-gnu.tar.gz"
@@ -22,7 +22,7 @@ COPY --from=downloader /download/${TARGETARCH}/bitcoin.conf /
 EXPOSE 8332 8333
 ENTRYPOINT [ "bitcoind" ]
 
-FROM gcr.io/distroless/cc-debian12:latest AS distroless
+FROM gcr.io/distroless/cc-debian13:latest AS distroless
 ARG TARGETARCH
 COPY --from=downloader /download/${TARGETARCH}/bin/bitcoind /usr/local/bin/
 EXPOSE 8332 8333
